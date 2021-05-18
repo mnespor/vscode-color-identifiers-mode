@@ -1,5 +1,5 @@
 {
-  "name": "color-identifiers-mode",
+  "name": "vscode-color-identifiers-mode",
   "displayName": "Color Identifiers Mode",
   "description": "Gives each identifier in scope a distinct color.",
   "version": "0.0.1",
@@ -10,13 +10,13 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:color-identifiers-mode.helloWorld"
+    "onCommand:vscode-color-identifiers-mode.helloWorld"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "color-identifiers-mode.helloWorld",
+        "command": "vscode-color-identifiers-mode.helloWorld",
         "title": "Hello World"
       }
     ]
