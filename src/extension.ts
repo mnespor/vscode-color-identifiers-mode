@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
+import { Range } from 'vscode'
 
 // TODO: 
 // - Actions: when to run
@@ -9,17 +10,32 @@ import * as vscode from 'vscode'
 //   - exluded file types
 //   - included variable types
 //   - modes: adjacent vs hash
+//   - debounce interval
 // - Refactor: Extract to files
 // - Performance
 //   - narrow scope to just the edited range
 //   - caching
+//   - debouncing
 // - Documentation
 // - Gray themes
 // - TS lint
 
 const colors = [
-
+	vscode.window.createTextEditorDecorationType({ color: '#FF0000' }),
+	vscode.window.createTextEditorDecorationType({ color: '#00FF00' }),
+	vscode.window.createTextEditorDecorationType({ color: '#0000FF' }),
+	vscode.window.createTextEditorDecorationType({ color: '#FFFF00' }),
+	vscode.window.createTextEditorDecorationType({ color: '#FF00FF' }),
+	vscode.window.createTextEditorDecorationType({ color: '#00FFFF' }),
+	vscode.window.createTextEditorDecorationType({ color: '#800000' }),
+	vscode.window.createTextEditorDecorationType({ color: '#008000' }),
+	vscode.window.createTextEditorDecorationType({ color: '#000080' }),
+	vscode.window.createTextEditorDecorationType({ color: '#808000' }),
+	vscode.window.createTextEditorDecorationType({ color: '#800080' }),
+	vscode.window.createTextEditorDecorationType({ color: '#008080' }),
 ]
+
+let rangeLists: vscode.Range[][] = colors.map(_ => [])
 
 // probably don't need this; just walk the tree on demand.
 function flattenSymbols(symbols: vscode.DocumentSymbol[] | vscode.SymbolInformation[]): (vscode.DocumentSymbol | vscode.SymbolInformation)[] {
@@ -51,6 +67,46 @@ async function blah() {
 	return symbols
 }
 
+function range(symbol: vscode.DocumentSymbol | vscode.SymbolInformation): vscode.Range {
+	if (symbol instanceof vscode.DocumentSymbol) {
+		return symbol.selectionRange
+	} else if (symbol instanceof vscode.SymbolInformation) {
+		return symbol.location.range
+	}
+
+	return new vscode.Range(0, 0, 0, 0)
+}
+
+async function colorize(editor: vscode.TextEditor): Promise<void> {
+	const uri = editor.document.uri
+	if (uri == null) { return }
+	const symbolTree: vscode.DocumentSymbol[] | vscode.SymbolInformation[] | undefined = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri)
+	const symbols = symbolTree && flattenSymbols(symbolTree)
+	rangeLists = colors.map(_ => [])
+	symbols?.forEach((symbol, index) => {
+		rangeLists[index % rangeLists.length].push(range(symbol))
+	})
+
+	colors.forEach((color, index) => {
+		editor.setDecorations(color, rangeLists[index])
+	})
+}
+
+function handleActiveEditorChange(editor: vscode.TextEditor | undefined) {
+	if (editor == null) {
+		return
+	}
+
+	colorize(editor)
+}
+
+function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
+	const editor = vscode.window.activeTextEditor
+	if (editor != null && editor.document == event.document) {
+		colorize(editor)
+	}
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -58,6 +114,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "color-identifiers-mode" is now active!')
+
+	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(handleActiveEditorChange))
+	context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(handleTextDocumentChange))
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
