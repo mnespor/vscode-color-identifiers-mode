@@ -4,7 +4,9 @@ import * as vscode from 'vscode'
 import { Range } from 'vscode'
 
 // TODO: 
-// - Actions: when to run
+// - Actions
+//   - When to run
+//   - In package definition, ensure able to load on text change and editor change
 // - Config
 //   - colors
 //   - exluded file types
@@ -93,7 +95,7 @@ async function blah() {
 	const symbols4 = await vscode.commands.executeCommand('vscode.executeDocumentHighlights', uri, position)
 	const legend = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokensLegend', uri)
 	// grab the selectionRange
-	const flatStuff = flattenSymbols(symbols2 ?? [])
+	//const flatStuff = flattenSymbols(symbols2 ?? [])
 	return symbols
 }
 
@@ -107,7 +109,7 @@ function range(symbol: vscode.DocumentSymbol | vscode.SymbolInformation): vscode
 	return new vscode.Range(0, 0, 0, 0)
 }
 
-async function colorize(editor: vscode.TextEditor): Promise<void> {
+async function symbolTreeColorize(editor: vscode.TextEditor): Promise<void> {
 	const uri = editor.document.uri
 	if (uri == null) { return }
 	const symbolTree: vscode.DocumentSymbol[] | vscode.SymbolInformation[] | undefined = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri)
@@ -123,6 +125,115 @@ async function colorize(editor: vscode.TextEditor): Promise<void> {
 		editor.setDecorations(color, rangeLists[index])
 	})
 }
+
+interface SemanticToken {
+	name: String
+	range: vscode.Range
+}
+
+        /**
+         * Tokens in a file are represented as an array of integers. The position of each token is expressed relative to
+         * the token before it, because most tokens remain stable relative to each other when edits are made in a file.
+         *
+         * ---
+         * In short, each token takes 5 integers to represent, so a specific token `i` in the file consists of the following array indices:
+         *  - at index `5*i`   - `deltaLine`: token line number, relative to the previous token
+         *  - at index `5*i+1` - `deltaStart`: token start character, relative to the previous token (relative to 0 or the previous token's start if they are on the same line)
+         *  - at index `5*i+2` - `length`: the length of the token. A token cannot be multiline.
+         *  - at index `5*i+3` - `tokenType`: will be looked up in `SemanticTokensLegend.tokenTypes`. We currently ask that `tokenType` < 65536.
+         *  - at index `5*i+4` - `tokenModifiers`: each set bit will be looked up in `SemanticTokensLegend.tokenModifiers`
+         *
+         * ---
+         * ### How to encode tokens
+         *
+         * Here is an example for encoding a file with 3 tokens in a uint32 array:
+         * ```
+         *    { line: 2, startChar:  5, length: 3, tokenType: "property",  tokenModifiers: ["private", "static"] },
+         *    { line: 2, startChar: 10, length: 4, tokenType: "type",      tokenModifiers: [] },
+         *    { line: 5, startChar:  2, length: 7, tokenType: "class",     tokenModifiers: [] }
+         * ```
+         *
+         * 1. First of all, a legend must be devised. This legend must be provided up-front and capture all possible token types.
+         * For this example, we will choose the following legend which must be passed in when registering the provider:
+         * ```
+         *    tokenTypes: ['property', 'type', 'class'],
+         *    tokenModifiers: ['private', 'static']
+         * ```
+         *
+         * 2. The first transformation step is to encode `tokenType` and `tokenModifiers` as integers using the legend. Token types are looked
+         * up by index, so a `tokenType` value of `1` means `tokenTypes[1]`. Multiple token modifiers can be set by using bit flags,
+         * so a `tokenModifier` value of `3` is first viewed as binary `0b00000011`, which means `[tokenModifiers[0], tokenModifiers[1]]` because
+         * bits 0 and 1 are set. Using this legend, the tokens now are:
+         * ```
+         *    { line: 2, startChar:  5, length: 3, tokenType: 0, tokenModifiers: 3 },
+         *    { line: 2, startChar: 10, length: 4, tokenType: 1, tokenModifiers: 0 },
+         *    { line: 5, startChar:  2, length: 7, tokenType: 2, tokenModifiers: 0 }
+         * ```
+         *
+         * 3. The next step is to represent each token relative to the previous token in the file. In this case, the second token
+         * is on the same line as the first token, so the `startChar` of the second token is made relative to the `startChar`
+         * of the first token, so it will be `10 - 5`. The third token is on a different line than the second token, so the
+         * `startChar` of the third token will not be altered:
+         * ```
+         *    { deltaLine: 2, deltaStartChar: 5, length: 3, tokenType: 0, tokenModifiers: 3 },
+         *    { deltaLine: 0, deltaStartChar: 5, length: 4, tokenType: 1, tokenModifiers: 0 },
+         *    { deltaLine: 3, deltaStartChar: 2, length: 7, tokenType: 2, tokenModifiers: 0 }
+         * ```
+         *
+         * 4. Finally, the last step is to inline each of the 5 fields for a token in a single array, which is a memory friendly representation:
+         * ```
+         *    // 1st token,  2nd token,  3rd token
+         *    [  2,5,3,0,3,  0,5,4,1,0,  3,2,7,2,0 ]
+         * ```
+         *
+         * @see [SemanticTokensBuilder](#SemanticTokensBuilder) for a helper to encode tokens as integers.
+         * *NOTE*: When doing edits, it is possible that multiple edits occur until VS Code decides to invoke the semantic tokens provider.
+         * *NOTE*: If the provider cannot temporarily compute semantic tokens, it can indicate this by throwing an error with the message 'Busy'.
+         */
+function tokensByName(data: vscode.SemanticTokens, legend: vscode.SemanticTokensLegend, editor: vscode.TextEditor): Record<string, SemanticToken> {
+	const accumulator: Record<string, SemanticToken> = {}
+	const recordSize = 5
+	let line = 0
+	let column = 0
+	let deltaLine = 0
+	let deltaColumn = 0
+	let length = 0
+	let kindIndex = 0
+	let _ = 0
+	let name = ''
+	let kind = ''
+
+	for (let i = 0; i < data.data.length; i += recordSize) {
+		;[deltaLine, deltaColumn, length, kindIndex, _] = data.data.slice(i, i + recordSize)
+		column = deltaLine == 0 ? column : 0
+		line += deltaLine
+		column += deltaColumn
+		name = editor.document.getText(new vscode.Range(line, column, line, column + length))
+		kind = legend.tokenTypes[kindIndex]
+	}
+
+	return accumulator
+}
+
+async function colorize(editor: vscode.TextEditor): Promise<void> {
+	const uri = editor.document.uri
+	if (uri == null) { return }
+	const legend: vscode.SemanticTokensLegend | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokensLegend', uri)
+	const tokensData: vscode.SemanticTokens | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokens', uri)
+	rangeLists = colors.map(_ => [])
+	if (tokensData == null || legend == null) { return }
+	tokensByName(tokensData, legend, editor)
+	// Object.values(grouped(symbols)).forEach((symbolList, index) => {
+	// 	const colorIndex = index % rangeLists.length
+	// 	const ranges = symbolList.map(range)
+	// 	rangeLists[colorIndex] = rangeLists[colorIndex].concat(ranges)
+	// })
+
+	colors.forEach((color, index) => {
+		editor.setDecorations(color, rangeLists[index])
+	})
+}
+
 
 function handleActiveEditorChange(editor: vscode.TextEditor | undefined) {
 	if (editor == null) {
