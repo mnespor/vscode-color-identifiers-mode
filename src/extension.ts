@@ -37,17 +37,43 @@ const colors = [
 
 let rangeLists: vscode.Range[][] = colors.map(_ => [])
 
+const symbolKinds: Set<vscode.SymbolKind> = new Set([vscode.SymbolKind.Variable, vscode.SymbolKind.TypeParameter, vscode.SymbolKind.Field])
+const bantSymbolKinds: Set<vscode.SymbolKind> = new Set([
+	vscode.SymbolKind.Class,
+	vscode.SymbolKind.Function,
+	vscode.SymbolKind.Constructor,
+	vscode.SymbolKind.Method
+])
+
 // probably don't need this; just walk the tree on demand.
 function flattenSymbols(symbols: vscode.DocumentSymbol[] | vscode.SymbolInformation[]): (vscode.DocumentSymbol | vscode.SymbolInformation)[] {
 	let symbolLists: (vscode.DocumentSymbol | vscode.SymbolInformation)[][] = []
 	for (const symbol of symbols) {
-		symbolLists.push([symbol])
+		if (!bantSymbolKinds.has(symbol.kind)) {
+			symbolLists.push([symbol])
+		} 
+
 		if ('children' in symbol) {
 			symbolLists.push(flattenSymbols(symbol.children))
 		}
 	}
 
 	return symbolLists.flat()
+}
+
+type SymbolGroup = Record<string, (vscode.DocumentSymbol | vscode.SymbolInformation)[]>
+
+function grouped(symbols: (vscode.DocumentSymbol | vscode.SymbolInformation)[]): SymbolGroup {
+	const symbolListsByName: SymbolGroup = {}
+	symbols.forEach(symbol => {
+		if (symbolListsByName[symbol.name] == null) {
+			symbolListsByName[symbol.name] = [symbol]
+		} else {
+			symbolListsByName[symbol.name].push(symbol)
+		}
+	})
+
+	return symbolListsByName
 }
 
 async function blah() {
@@ -58,6 +84,10 @@ async function blah() {
 	const position = new vscode.Position(7, 13)
 	const symbols = await vscode.commands.executeCommand('vscode.executeWorkspaceSymbolProvider', '')
 	// NOTE: flutter LSP support doesn't work without the flutter CLI tool installed
+	// NOTE: symbol list doesn't work. It includes local variables for neither typescript nor dart. Probably gotta decode the semantic token list
+	// NOTE: dart lsp doesn't provide semantic tokens!?
+	//       - nah, just need to enable dart-code's preview LSP
+	// NOTE: sourcekit-lsp is very experimental; see https://github.com/apple/sourcekit-lsp/tree/main/Editors/vscode
 	const symbols2: vscode.DocumentSymbol[] | vscode.SymbolInformation[] | undefined = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri) // this one
 	const symbols3: vscode.SemanticTokens | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokens', uri)
 	const symbols4 = await vscode.commands.executeCommand('vscode.executeDocumentHighlights', uri, position)
@@ -81,10 +111,12 @@ async function colorize(editor: vscode.TextEditor): Promise<void> {
 	const uri = editor.document.uri
 	if (uri == null) { return }
 	const symbolTree: vscode.DocumentSymbol[] | vscode.SymbolInformation[] | undefined = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri)
-	const symbols = symbolTree && flattenSymbols(symbolTree)
+	const symbols = (symbolTree && flattenSymbols(symbolTree)) ?? []
 	rangeLists = colors.map(_ => [])
-	symbols?.forEach((symbol, index) => {
-		rangeLists[index % rangeLists.length].push(range(symbol))
+	Object.values(grouped(symbols)).forEach((symbolList, index) => {
+		const colorIndex = index % rangeLists.length
+		const ranges = symbolList.map(range)
+		rangeLists[colorIndex] = rangeLists[colorIndex].concat(ranges)
 	})
 
 	colors.forEach((color, index) => {
