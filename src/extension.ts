@@ -23,23 +23,18 @@ import { Range } from 'vscode'
 // - TS lint
 
 const colors = [
-	vscode.window.createTextEditorDecorationType({ color: '#FF0000' }),
-	vscode.window.createTextEditorDecorationType({ color: '#00FF00' }),
-	vscode.window.createTextEditorDecorationType({ color: '#0000FF' }),
-	vscode.window.createTextEditorDecorationType({ color: '#FFFF00' }),
-	vscode.window.createTextEditorDecorationType({ color: '#FF00FF' }),
-	vscode.window.createTextEditorDecorationType({ color: '#00FFFF' }),
-	vscode.window.createTextEditorDecorationType({ color: '#800000' }),
-	vscode.window.createTextEditorDecorationType({ color: '#008000' }),
-	vscode.window.createTextEditorDecorationType({ color: '#000080' }),
-	vscode.window.createTextEditorDecorationType({ color: '#808000' }),
-	vscode.window.createTextEditorDecorationType({ color: '#800080' }),
-	vscode.window.createTextEditorDecorationType({ color: '#008080' }),
+	vscode.window.createTextEditorDecorationType({ color: '#FF8080' }),
+	vscode.window.createTextEditorDecorationType({ color: '#80FF80' }),
+	vscode.window.createTextEditorDecorationType({ color: '#8080FF' }),
+	vscode.window.createTextEditorDecorationType({ color: '#FFFF80' }),
+	vscode.window.createTextEditorDecorationType({ color: '#FF80FF' }),
+	vscode.window.createTextEditorDecorationType({ color: '#80FFFF' })
 ]
 
 let rangeLists: vscode.Range[][] = colors.map(_ => [])
 
 const symbolKinds: Set<vscode.SymbolKind> = new Set([vscode.SymbolKind.Variable, vscode.SymbolKind.TypeParameter, vscode.SymbolKind.Field])
+const tokenKinds: Set<string> = new Set(['variable', 'parameter'/*, 'property'*/])
 const bantSymbolKinds: Set<vscode.SymbolKind> = new Set([
 	vscode.SymbolKind.Class,
 	vscode.SymbolKind.Function,
@@ -190,29 +185,34 @@ interface SemanticToken {
          * *NOTE*: When doing edits, it is possible that multiple edits occur until VS Code decides to invoke the semantic tokens provider.
          * *NOTE*: If the provider cannot temporarily compute semantic tokens, it can indicate this by throwing an error with the message 'Busy'.
          */
-function tokensByName(data: vscode.SemanticTokens, legend: vscode.SemanticTokensLegend, editor: vscode.TextEditor): Record<string, SemanticToken> {
-	const accumulator: Record<string, SemanticToken> = {}
+function rangesByName(data: vscode.SemanticTokens, legend: vscode.SemanticTokensLegend, editor: vscode.TextEditor): Record<string, vscode.Range[]> {
+	const accumulator: Record<string, vscode.Range[]> = {}
 	const recordSize = 5
 	let line = 0
 	let column = 0
-	let deltaLine = 0
-	let deltaColumn = 0
-	let length = 0
-	let kindIndex = 0
-	let _ = 0
-	let name = ''
-	let kind = ''
 
 	for (let i = 0; i < data.data.length; i += recordSize) {
-		;[deltaLine, deltaColumn, length, kindIndex, _] = data.data.slice(i, i + recordSize)
+		const [deltaLine, deltaColumn, length, kindIndex, _] = data.data.slice(i, i + recordSize)
 		column = deltaLine == 0 ? column : 0
 		line += deltaLine
 		column += deltaColumn
-		name = editor.document.getText(new vscode.Range(line, column, line, column + length))
-		kind = legend.tokenTypes[kindIndex]
+		const range = new vscode.Range(line, column, line, column + length)
+		const name = editor.document.getText(range)
+		const kind = legend.tokenTypes[kindIndex]
+		if (tokenKinds.has(kind)) {
+			pushValue(accumulator, name, range)
+		}
 	}
 
 	return accumulator
+}
+
+function pushValue<Element>(dictionary: Record<string, Element[]>, key: string, value: Element) {
+	if (key in dictionary) {
+		dictionary[key].push(value)
+	} else {
+		dictionary[key] = [value]
+	}
 }
 
 async function colorize(editor: vscode.TextEditor): Promise<void> {
@@ -222,12 +222,10 @@ async function colorize(editor: vscode.TextEditor): Promise<void> {
 	const tokensData: vscode.SemanticTokens | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokens', uri)
 	rangeLists = colors.map(_ => [])
 	if (tokensData == null || legend == null) { return }
-	tokensByName(tokensData, legend, editor)
-	// Object.values(grouped(symbols)).forEach((symbolList, index) => {
-	// 	const colorIndex = index % rangeLists.length
-	// 	const ranges = symbolList.map(range)
-	// 	rangeLists[colorIndex] = rangeLists[colorIndex].concat(ranges)
-	// })
+	Object.values(rangesByName(tokensData, legend, editor)).forEach((ranges, index) => {
+		const colorIndex = index % rangeLists.length
+		rangeLists[colorIndex] = rangeLists[colorIndex].concat(ranges)
+	})
 
 	colors.forEach((color, index) => {
 		editor.setDecorations(color, rangeLists[index])
