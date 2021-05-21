@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import { rangesByName } from './rangesByName';
-import { colors } from "./configuration";
+import { colors, ignoredLanguages } from "./configuration";
 
 let rangeLists: vscode.Range[][] = colors.map(_ => [])
 
 export async function colorize(editor: vscode.TextEditor): Promise<void> {
 	const uri = editor.document.uri;
-	if (uri == null) { return; }
+	if (uri == null || ignoredLanguages.has(editor.document.languageId)) { return; }
 	const legend: vscode.SemanticTokensLegend | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokensLegend', uri);
 	const tokensData: vscode.SemanticTokens | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokens', uri);
 	rangeLists = colors.map(_ => []);

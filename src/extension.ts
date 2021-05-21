@@ -2,16 +2,23 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
 import { colorize } from './colorize'
+import { updateConfiguration } from './configuration'
 
 // TODO: 
-// - Actions
+// x Actions
 //   x When to run
 //   x In package definition, ensure able to load on text change and editor change
+// - Review VS Code extension guidelines
 // - Config
 //   - colors
 //   - exluded file types
 //   - included variable types
 //   - modes: adjacent vs hash
+// "colorIdentifiersMode.coloringMethod": {
+// 	"type": "boolean",
+// 	"default": false,
+// 	"description": "\"Sequential\" (the default) assigns colors to variables in the order that the variables appear in the file. \"Hash\" uses the variable's name to determine its color."
+//   }
 //   - debounce interval
 // - Refactor: Extract to files
 // - Performance
@@ -44,13 +51,15 @@ function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
 
 // this method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
+	updateConfiguration()
+	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(updateConfiguration))
+	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(handleActiveEditorChange))
+	context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(handleTextDocumentChange))
+
 	const editor = vscode.window.activeTextEditor
 	if (editor != null) {
 		colorize(editor)
 	}
-
-	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(handleActiveEditorChange))
-	context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(handleTextDocumentChange))
 }
 
 // this method is called when your extension is deactivated

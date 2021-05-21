@@ -14,12 +14,33 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "vscode-color-identifiers-mode.helloWorld",
-        "title": "Hello World"
+    "configuration": {
+      "title": "Color Identifiers Mode",
+      "properties": {
+        "colorIdentifiersMode.tokenKinds": {
+          "type": "array",
+          "default": ["variable", "parameter", "property"],
+          "markdownDescription": "The types of language tokens that should have a color applied. In addition to the [list of common types](https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide#standard-token-types-and-modifiers), language authors may define their own."
+        },
+        "colorIdentifiersMode.colors": {
+          "type": "array",
+          "default": [
+            "#FF8080",
+            "#80FF80",
+            "#8080FF",
+            "#FFFF80",
+            "#FF80FF",
+            "#80FFFF"          
+          ],
+          "description": "Variables' colors are chosen from this list."
+        },
+        "colorIdentifiersMode.ignoredLanguages": {
+          "type": "array",
+          "default": [],
+          "description": "[Languages](https://code.visualstudio.com/docs/languages/identifiers#_known-language-identifiers) to ignore. "
+        }
       }
-    ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
