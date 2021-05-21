@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-color-identifiers-mode.helloWorld"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
