@@ -1,70 +1,22 @@
-# color-identifiers-mode README
+# Color Identifiers for Visual Studio Code
 
-This is the README for your extension "color-identifiers-mode". After writing up a brief description, we recommend including the following sections.
+Color Identifiers is a syntax highlighter that gives each identifier a different color, inspired by [Color Identifiers Mode](https://github.com/ankurdave/color-identifiers-mode) for Emacs.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+This extension works for any language that offers semantic highlighting in Visual Studio Code. It uses the language server to determine which words to highlight.
 
-For example if there is an image subfolder under your extension project workspace:
+Two themes, Color Identifiers Dark and Color Identifiers Light, are included. These themes make variables more prominent and language keywords less prominent. Color Identifiers is also compatible with any existing theme.
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+![feature X](images/screenshot_00.png)
+![feature X](images/screenshot_01.png)
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+* `colorIdentifiersMode.tokenKinds`: The types of language tokens that should have a color applied.
+* `colorIdentifiersMode.paletteMode`: Automatic or manual. The automatic palette chooses colors that are likely to work well with the active color theme. The manual palette chooses colors from a user-defined list.
+* `colorIdentifiersMode.manualColors`: The list of colors used in the manual palette mode.
+* `colorIdentifiersMode.ignoredLanguages`: Don't colorize files in these languages.
+* `colorIdentifiersMode.method`: Sequential or hash. Sequential mode assigns colors to identifiers in the order the identifiers appear in the file. Hash mode uses the variable's name to decide its color.

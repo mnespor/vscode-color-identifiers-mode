@@ -1,6 +1,6 @@
 {
   "name": "vscode-color-identifiers-mode",
-  "displayName": "Color Identifiers Mode",
+  "displayName": "Color Identifiers",
   "description": "Gives each identifier in scope a distinct color.",
   "version": "0.1.0",
   "publisher": "mnespor",
@@ -17,7 +17,7 @@
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
-      "title": "Color Identifiers Mode",
+      "title": "Color Identifiers",
       "properties": {
         "colorIdentifiersMode.tokenKinds": {
           "type": "array",
