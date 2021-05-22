@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import * as murmurhash from 'murmurhash'
 import { rangesByName } from './rangesByName'
-import { colors, ignoredLanguages, method, Method } from "./configuration"
+import { colors, ignoredLanguages, method, Method, generateColors } from "./configuration"
 
 let rangeLists: vscode.Range[][] = colors.map(_ => [])
 
@@ -20,6 +20,7 @@ export async function colorize(editor: vscode.TextEditor): Promise<void> {
 	if (uri == null || ignoredLanguages.has(editor.document.languageId)) { return; }
 	const legend: vscode.SemanticTokensLegend | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokensLegend', uri);
 	const tokensData: vscode.SemanticTokens | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokens', uri);
+	vscode.window.activeColorTheme
 	rangeLists = colors.map(_ => []);
 	if (tokensData == null || legend == null) { return; }
 	const rangesBySymbolName = rangesByName(tokensData, legend, editor)

@@ -14,6 +14,10 @@ export function updateConfiguration() {
 	method = configuration.get('method') ?? Method.sequential
 }
 
+export function generatePalette() {
+	// TODO: implement
+}
+
 export let tokenKinds: Set<string> = new Set(['variable', 'parameter', 'property'])
 export let ignoredLanguages: Set<string> = new Set()
 export let method: string = Method.sequential
