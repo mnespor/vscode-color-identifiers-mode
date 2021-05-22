@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import { tokenKinds } from './configuration';
-import { pushValue } from "./pushValue";
+import * as vscode from 'vscode'
+import { tokenKinds } from './configuration'
+import { pushValue } from "./pushValue"
 
 /**
  * Tokens in a file are represented as an array of integers. The position of each token is expressed relative to
@@ -62,23 +62,23 @@ import { pushValue } from "./pushValue";
  * *NOTE*: If the provider cannot temporarily compute semantic tokens, it can indicate this by throwing an error with the message 'Busy'.
  */
 export function rangesByName(data: vscode.SemanticTokens, legend: vscode.SemanticTokensLegend, editor: vscode.TextEditor): Record<string, vscode.Range[]> {
-	const accumulator: Record<string, vscode.Range[]> = {};
-	const recordSize = 5;
-	let line = 0;
-	let column = 0;
+	const accumulator: Record<string, vscode.Range[]> = {}
+	const recordSize = 5
+	let line = 0
+	let column = 0
 
 	for (let i = 0; i < data.data.length; i += recordSize) {
-		const [deltaLine, deltaColumn, length, kindIndex, _] = data.data.slice(i, i + recordSize);
-		column = deltaLine == 0 ? column : 0;
-		line += deltaLine;
-		column += deltaColumn;
-		const range = new vscode.Range(line, column, line, column + length);
-		const name = editor.document.getText(range);
-		const kind = legend.tokenTypes[kindIndex];
+		const [deltaLine, deltaColumn, length, kindIndex, _] = data.data.slice(i, i + recordSize)
+		column = deltaLine === 0 ? column : 0
+		line += deltaLine
+		column += deltaColumn
+		const range = new vscode.Range(line, column, line, column + length)
+		const name = editor.document.getText(range)
+		const kind = legend.tokenTypes[kindIndex]
 		if (tokenKinds.has(kind)) {
-			pushValue(accumulator, name, range);
+			pushValue(accumulator, name, range)
 		}
 	}
 
-	return accumulator;
+	return accumulator
 }

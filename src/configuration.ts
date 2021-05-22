@@ -28,11 +28,11 @@ export function generatePalette() {
 			const configuration = vscode.workspace.getConfiguration('colorIdentifiersMode')
 			const colorNames: string[] = configuration.get('manualColors') ?? []
 			colors = colorNames.map(color => vscode.window.createTextEditorDecorationType({ color }))
-			break;
+			break
 		case PaletteMode.automatic:
 		default:
 			const saturation = 90
-			const luminance = vscode.window.activeColorTheme.kind == ColorThemeKind.Light ? 30 : 80
+			const luminance = vscode.window.activeColorTheme.kind === ColorThemeKind.Light ? 30 : 80
 			colors = [0.0, 0.5, 0.1, 0.6, 0.2, 0.7, 0.3, 0.8, 0.4, 0.9].map(hue => {
 				const hex = colorConvert.hsl.hex([360.0 * hue, saturation, luminance])
 				return vscode.window.createTextEditorDecorationType({ color: `#${hex}` })

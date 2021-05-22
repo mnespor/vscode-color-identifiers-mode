@@ -16,21 +16,21 @@ function colorIndexOfSymbol(symbolName: string, symbolIndex: number): number {
 }
 
 export async function colorize(editor: vscode.TextEditor): Promise<void> {
-	const uri = editor.document.uri;
-	if (uri == null || ignoredLanguages.has(editor.document.languageId)) { return; }
-	const legend: vscode.SemanticTokensLegend | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokensLegend', uri);
-	const tokensData: vscode.SemanticTokens | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokens', uri);
+	const uri = editor.document.uri
+	if (uri == null || ignoredLanguages.has(editor.document.languageId)) { return }
+	const legend: vscode.SemanticTokensLegend | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokensLegend', uri)
+	const tokensData: vscode.SemanticTokens | undefined = await vscode.commands.executeCommand('vscode.provideDocumentSemanticTokens', uri)
 	vscode.window.activeColorTheme
-	rangeLists = colors.map(_ => []);
-	if (tokensData == null || legend == null) { return; }
+	rangeLists = colors.map(_ => [])
+	if (tokensData == null || legend == null) { return }
 	const rangesBySymbolName = rangesByName(tokensData, legend, editor)
 	Object.keys(rangesBySymbolName).forEach((name, index) => {
 		const ranges = rangesBySymbolName[name]
 		const colorIndex = colorIndexOfSymbol(name, index)
-		rangeLists[colorIndex] = rangeLists[colorIndex].concat(ranges);
-	});
+		rangeLists[colorIndex] = rangeLists[colorIndex].concat(ranges)
+	})
 
 	colors.forEach((color, index) => {
-		editor.setDecorations(color, rangeLists[index]);
-	});
+		editor.setDecorations(color, rangeLists[index])
+	})
 }

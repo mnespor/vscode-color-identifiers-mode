@@ -26,7 +26,7 @@ function handleColorThemeChange() {
 
 function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
 	const editor = vscode.window.activeTextEditor
-	if (editor != null && editor.document == event.document) {
+	if (editor != null && editor.document === event.document) {
 		colorize(editor)
 	}
 }
