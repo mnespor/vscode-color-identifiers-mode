@@ -1,15 +1,22 @@
 import * as vscode from 'vscode';
 
+export const Method = {
+	sequential: 'sequential',
+	hash: 'hash'
+}
+
 export function updateConfiguration() { 
     const configuration = vscode.workspace.getConfiguration('colorIdentifiersMode')
     tokenKinds = new Set(configuration.get('tokenKinds') ?? [])
-    const colorNames: String[] = configuration.get('colors') ?? []
+    const colorNames: string[] = configuration.get('colors') ?? []
     colors = colorNames.map(color => vscode.window.createTextEditorDecorationType({ color }))
     ignoredLanguages = new Set(configuration.get('ignoredLanguages') ?? [])
+	method = configuration.get('method') ?? Method.sequential
 }
 
 export let tokenKinds: Set<string> = new Set(['variable', 'parameter', 'property'])
-
+export let ignoredLanguages: Set<string> = new Set()
+export let method: string = Method.sequential
 export let colors = [
 	'#FF8080',
 	'#80FF80',
@@ -18,7 +25,5 @@ export let colors = [
 	'#FF80FF',
 	'#80FFFF'
 ].map(color => vscode.window.createTextEditorDecorationType({ color }))
-
-export let ignoredLanguages: Set<string> = new Set();
 
 vscode.workspace.getConfiguration('myExtension')

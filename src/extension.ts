@@ -8,29 +8,22 @@ import { updateConfiguration } from './configuration'
 // x Actions
 //   x When to run
 //   x In package definition, ensure able to load on text change and editor change
-// - Review VS Code extension guidelines
+// x Review VS Code extension guidelines
 // - Config
-//   - colors
-//   - exluded file types
-//   - included variable types
-//   - modes: adjacent vs hash
-// "colorIdentifiersMode.coloringMethod": {
-// 	"type": "boolean",
-// 	"default": false,
-// 	"description": "\"Sequential\" (the default) assigns colors to variables in the order that the variables appear in the file. \"Hash\" uses the variable's name to determine its color."
-//   }
+//   x colors
+//   x exluded file types
+//   x included variable types
+//   x modes: adjacent vs hash
 //   - debounce interval
-// - Refactor: Extract to files
+// x Refactor: Extract to files
 // - Performance
-//   - narrow scope to just the edited range
 //   - caching
 //   - debouncing
 // - Documentation
 // - Gray themes
-// - TS lint
 
 interface SemanticToken {
-	name: String
+	name: string
 	range: vscode.Range
 }
 
@@ -49,7 +42,6 @@ function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
 	}
 }
 
-// this method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
 	updateConfiguration()
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(updateConfiguration))
@@ -62,5 +54,4 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}
