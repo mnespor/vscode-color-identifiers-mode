@@ -16,6 +16,9 @@
   "categories": [
     "Programming Languages", "Themes" 
   ],
+  "keywords": [
+    "semantic", "syntax", "highlighting", "variables", "rainbow"
+  ],
   "activationEvents": [
     "onStartupFinished"
   ],
