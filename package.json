@@ -31,12 +31,16 @@
         "colorIdentifiersMode.colors": {
           "type": "array",
           "default": [
-            "#FF8080",
-            "#80FF80",
-            "#8080FF",
-            "#FFFF80",
-            "#FF80FF",
-            "#80FFFF"
+            "#FFD479",
+            "#FF7E79",
+            "#D4FB79",
+            "#73FA79",
+            "#73FCD6",
+            "#76D6FF",
+            "#7A81FF",
+            "#7A81FF",
+            "#D783FF",
+            "#FF8AD8"
           ],
           "description": "Variables' colors are chosen from this list."
         },
@@ -55,7 +59,19 @@
           ]
         }
       }
-    }
+    },
+    "themes": [
+      {
+        "label": "Color Identifiers Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/color-identifiers-dark.json"
+      },
+      {
+        "label": "Color Identifiers Light",
+        "uiTheme": "vs",
+        "path": "./themes/color-identifiers-light.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
