@@ -17,7 +17,11 @@ function handleActiveEditorChange(editor: vscode.TextEditor | undefined) {
 }
 
 function handleColorThemeChange() {
-
+	generatePalette()
+	const editor = vscode.window.activeTextEditor
+	if (editor != null) { 
+		colorize(editor)
+	}
 }
 
 function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
@@ -29,6 +33,7 @@ function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
 
 export function activate(context: vscode.ExtensionContext) {
 	updateConfiguration()
+	generatePalette()
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(updateConfiguration))
 	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(handleActiveEditorChange))
 	context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(handleTextDocumentChange))

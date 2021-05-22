@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import * as murmurhash from 'murmurhash'
 import { rangesByName } from './rangesByName'
-import { colors, ignoredLanguages, method, Method, generateColors } from "./configuration"
+import { colors, ignoredLanguages, method, Method } from "./configuration"
 
 let rangeLists: vscode.Range[][] = colors.map(_ => [])
 

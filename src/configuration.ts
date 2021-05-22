@@ -15,6 +15,8 @@ export function updateConfiguration() {
 }
 
 export function generatePalette() {
+	vscode.window.activeColorTheme.kind
+	new vscode.ThemeColor('editor.background')
 	// TODO: implement
 }
 
