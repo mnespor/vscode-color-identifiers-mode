@@ -1,15 +1,20 @@
 {
   "name": "vscode-color-identifiers-mode",
   "displayName": "Color Identifiers",
-  "description": "Gives each identifier in scope a distinct color.",
-  "version": "0.1.0",
-  "publisher": "mnespor",
-  "repository": "https://www.github.com/mnespor/vscode-color-identifiers-mode",
+  "description": "Gives each identifier a distinct color.",
+  "version": "1.0.0",
+  "license": "GPL-3.0-or-later",
+  "publisher": "MatthewNespor",
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/mnespor/vscode-color-identifiers-mode.git"
+  },
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.56.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages", "Themes" 
   ],
   "activationEvents": [
     "onStartupFinished"
