@@ -9,7 +9,7 @@
   - [x] included variable types
   - [x] modes: adjacent vs hash
   - [ ] debounce interval
-  - [ ] auto color picking
+  - [x] auto color picking
 - [x] Refactor: Extract to files
 - [ ] Performance
   - [ ] caching

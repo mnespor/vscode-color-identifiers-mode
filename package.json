@@ -28,7 +28,19 @@
           ],
           "markdownDescription": "The types of language tokens that should have a color applied. In addition to the [list of common types](https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide#standard-token-types-and-modifiers), language authors may define their own."
         },
-        "colorIdentifiersMode.colors": {
+        "colorIdentifiersMode.paletteMode": {
+          "type": "string",
+          "default": "automatic",
+          "enum": [
+            "automatic",
+            "manual"
+          ],
+          "enumDescriptions": [
+            "Chooses colors likely to work well with the active color theme.",
+            "Chooses colors from a user-defined list."
+          ]
+        },
+        "colorIdentifiersMode.manualColors": {
           "type": "array",
           "default": [
             "#FFD479",
@@ -42,7 +54,7 @@
             "#D783FF",
             "#FF8AD8"
           ],
-          "description": "Variables' colors are chosen from this list."
+          "description": "In the manual palette mode, colors are chosen from this list."
         },
         "colorIdentifiersMode.ignoredLanguages": {
           "type": "array",
@@ -52,7 +64,10 @@
         "colorIdentifiersMode.method": {
           "type": "string",
           "default": "sequential",
-          "enum": ["sequential", "hash"],
+          "enum": [
+            "sequential",
+            "hash"
+          ],
           "enumDescriptions": [
             "Assigns colors to variables in the order that the variables appear in the file.",
             "Uses the variable's name to determine its color."
@@ -95,6 +110,8 @@
     "vscode-test": "^1.5.0"
   },
   "dependencies": {
+    "@types/color-convert": "^2.0.0",
+    "color-convert": "^2.0.1",
     "murmurhash": "^2.0.0"
   }
 }
