@@ -1,7 +1,10 @@
 import * as vscode from 'vscode'
+import debounce from 'just-debounce'
 import { colorize } from './colorize'
 import { updateConfiguration } from './configuration'
 import { generatePalette } from "./configuration"
+
+const colorizeIfNeeded = debounce(colorize, 200)
 
 interface SemanticToken {
 	name: string
@@ -13,21 +16,21 @@ function handleActiveEditorChange(editor: vscode.TextEditor | undefined) {
 		return
 	}
 
-	colorize(editor)
+	colorizeIfNeeded(editor)
 }
 
 function handleColorThemeChange() {
 	generatePalette()
 	const editor = vscode.window.activeTextEditor
 	if (editor != null) { 
-		colorize(editor)
+		colorizeIfNeeded(editor)
 	}
 }
 
 function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
 	const editor = vscode.window.activeTextEditor
 	if (editor != null && editor.document === event.document) {
-		colorize(editor)
+		colorizeIfNeeded(editor)
 	}
 }
 
@@ -40,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const editor = vscode.window.activeTextEditor
 	if (editor != null) {
-		colorize(editor)
+		colorizeIfNeeded(editor)
 	}
 }
 

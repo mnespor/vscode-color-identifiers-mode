@@ -2,7 +2,7 @@
   "name": "vscode-color-identifiers-mode",
   "displayName": "Color Identifiers",
   "description": "Gives each identifier a distinct color.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "GPL-3.0-or-later",
   "publisher": "MatthewNespor",
   "repository": {
@@ -14,10 +14,15 @@
     "vscode": "^1.56.0"
   },
   "categories": [
-    "Programming Languages", "Themes" 
+    "Programming Languages",
+    "Themes"
   ],
   "keywords": [
-    "semantic", "syntax", "highlighting", "variables", "rainbow"
+    "semantic",
+    "syntax",
+    "highlighting",
+    "variables",
+    "rainbow"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -120,6 +125,7 @@
   "dependencies": {
     "@types/color-convert": "^2.0.0",
     "color-convert": "^2.0.1",
+    "just-debounce": "^1.1.0",
     "murmurhash": "^2.0.0"
   }
 }
