@@ -18,6 +18,7 @@ export function updateConfiguration() {
     ignoredLanguages = new Set(configuration.get('ignoredLanguages') ?? [])
 	method = configuration.get('method') ?? Method.sequential
 	paletteMode = configuration.get('paletteMode') ?? PaletteMode.automatic
+	bigFileSize = configuration.get('ignoredFileSize') ?? 102400
 	generatePalette()
 }
 
@@ -44,6 +45,7 @@ let paletteMode = PaletteMode.automatic
 export let tokenKinds: Set<string> = new Set(['variable', 'parameter', 'property'])
 export let ignoredLanguages: Set<string> = new Set()
 export let method: string = Method.sequential
+export let bigFileSize: number = 102400
 export let colors = [
 	'#FF00FF'
 ].map(color => vscode.window.createTextEditorDecorationType({ color }))
