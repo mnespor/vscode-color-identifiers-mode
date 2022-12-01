@@ -20,3 +20,4 @@ This extension contributes the following settings:
 * `colorIdentifiersMode.manualColors`: The list of colors used in the manual palette mode.
 * `colorIdentifiersMode.ignoredLanguages`: Don't colorize files in these languages.
 * `colorIdentifiersMode.method`: Sequential or hash. Sequential mode assigns colors to identifiers in the order the identifiers appear in the file. Hash mode uses the variable's name to decide its color.
+* `colorIdentifiersMode.ignoredFileSize": Ignore files greater than this size in bytes.

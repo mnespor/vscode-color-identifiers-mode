@@ -89,7 +89,7 @@
         "colorIdentifiersMode.ignoredFileSize": {
           "type": "integer",
           "default": 102400,
-          "description": "Ignore files greather than size (in bytes)."
+          "description": "Ignore files greater than this size (in bytes)."
         }
       }
     },
@@ -131,7 +131,6 @@
     "@types/color-convert": "^2.0.0",
     "color-convert": "^2.0.1",
     "just-debounce": "^1.1.0",
-    "murmurhash": "^2.0.0",
-    "vsce": "^2.14.0"
+    "murmurhash": "^2.0.0"
   }
 }
