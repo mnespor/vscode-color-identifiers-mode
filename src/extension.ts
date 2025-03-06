@@ -1,30 +1,28 @@
 import * as vscode from 'vscode'
-import debounce from 'just-debounce'
+import { debounce } from './editorDebounce'
 import { colorize } from './colorize'
 import { updateConfiguration } from './configuration'
 import { generatePalette } from "./configuration"
 
-const colorizeIfNeeded = debounce(colorize, 200)
+const colorizeIfNeeded = debounce((editor: vscode.TextEditor) => colorize(editor), 200)
 
 interface SemanticToken {
 	name: string
 	range: vscode.Range
 }
 
-function handleActiveEditorChange(editor: vscode.TextEditor | undefined) {
-	if (editor == null) {
-		return
-	}
-
-	colorizeIfNeeded(editor)
+function handleVisibleEditorsChange(editors: readonly vscode.TextEditor[]) {
+	editors.forEach(editor => {
+		colorizeIfNeeded(editor)
+	})
 }
 
 function handleColorThemeChange() {
 	generatePalette()
-	const editor = vscode.window.activeTextEditor
-	if (editor != null) { 
+	const editors = vscode.window.visibleTextEditors
+	editors.forEach(editor => {
 		colorizeIfNeeded(editor)
-	}
+	})
 }
 
 function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
@@ -37,14 +35,14 @@ function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
 export function activate(context: vscode.ExtensionContext) {
 	updateConfiguration()
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(updateConfiguration))
-	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(handleActiveEditorChange))
+	context.subscriptions.push(vscode.window.onDidChangeVisibleTextEditors(handleVisibleEditorsChange))
 	context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(handleTextDocumentChange))
 	context.subscriptions.push(vscode.window.onDidChangeActiveColorTheme(handleColorThemeChange))
 
-	const editor = vscode.window.activeTextEditor
-	if (editor != null) {
+	const editors = vscode.window.visibleTextEditors
+	editors.forEach(editor => {
 		colorizeIfNeeded(editor)
-	}
+	})
 }
 
 export function deactivate() {}
