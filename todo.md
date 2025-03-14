@@ -5,7 +5,7 @@
 - [x] Review VS Code extension guidelines
 - [ ] Config
   - [x] colors
-  - [x] exluded file types
+  - [x] excluded file types
   - [x] included variable types
   - [x] modes: adjacent vs hash
   - [ ] debounce interval
@@ -20,6 +20,7 @@
   - [x] pick real var colors
 
 ## Notes
+```
 "editor.tokenColorCustomizations": {
 	"[Default Light+]": {
 		"semanticHighlighting": false,
@@ -32,4 +33,4 @@
 		"variables": "#202020",
 	}
 },
-
+```
