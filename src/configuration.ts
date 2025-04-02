@@ -15,6 +15,7 @@ const PaletteMode = {
 export function updateConfiguration() { 
     const configuration = vscode.workspace.getConfiguration('colorIdentifiersMode')
     tokenKinds = new Set(configuration.get('tokenKinds') ?? [])
+	nameWhitelist = new Set(configuration.get('nameWhitelist') ?? [])
     ignoredLanguages = new Set(configuration.get('ignoredLanguages') ?? [])
 	method = configuration.get('method') ?? Method.sequential
 	paletteMode = configuration.get('paletteMode') ?? PaletteMode.automatic
@@ -44,6 +45,7 @@ export function generatePalette() {
 let paletteMode = PaletteMode.automatic
 export let tokenKinds: Set<string> = new Set(['variable', 'parameter', 'property'])
 export let ignoredLanguages: Set<string> = new Set()
+export let nameWhitelist: Set<string> = new Set()
 export let method: string = Method.sequential
 export let bigFileSize: number = 102400
 export let colors = [

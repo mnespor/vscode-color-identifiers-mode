@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { tokenKinds } from './configuration'
+import { tokenKinds, nameWhitelist } from './configuration'
 import { pushValue } from "./pushValue"
 
 /**
@@ -75,7 +75,7 @@ export function rangesByName(data: vscode.SemanticTokens, legend: vscode.Semanti
 		const range = new vscode.Range(line, column, line, column + length)
 		const name = editor.document.getText(range)
 		const kind = legend.tokenTypes[kindIndex]
-		if (tokenKinds.has(kind)) {
+		if (tokenKinds.has(kind)&& (nameWhitelist.size === 0 || nameWhitelist.has(name))) {
 			pushValue(accumulator, name, range)
 		}
 	}

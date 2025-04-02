@@ -90,6 +90,11 @@
           "type": "integer",
           "default": 102400,
           "description": "Ignore files greater than this size (in bytes)."
+        },
+        "colorIdentifiersMode.nameWhitelist": {
+          "type": "array",
+          "default": [],
+          "markdownDescription": "Use to color only specific names."
         }
       }
     },
