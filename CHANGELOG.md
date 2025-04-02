@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.5.0 (????-??-??) <!-- TODO: add date -->
+## 1.5.0 (2025-04-01)
 
 - Fix Git two-panel diff view infinite recursion by [Psychosoc1al](https://github.com/Psychosoc1al)
 - Fix colors resetting when modifying `settings.json` via `Quick fix...` by [Psychosoc1al](https://github.com/Psychosoc1al)  
