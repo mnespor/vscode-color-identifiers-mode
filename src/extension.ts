@@ -6,9 +6,11 @@ import { generatePalette } from "./configuration"
 
 const colorizeIfNeeded = debounce((editor: vscode.TextEditor) => colorize(editor), 200)
 
-interface SemanticToken {
-	name: string
-	range: vscode.Range
+function handleBackgroundConfigurationChange() {
+	const editors = vscode.window.visibleTextEditors
+	editors.forEach(editor => {
+		colorizeIfNeeded(editor)
+	})
 }
 
 function handleVisibleEditorsChange(editors: readonly vscode.TextEditor[]) {
@@ -35,6 +37,7 @@ function handleTextDocumentChange(event: vscode.TextDocumentChangeEvent) {
 export function activate(context: vscode.ExtensionContext) {
 	updateConfiguration()
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(updateConfiguration))
+	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(handleBackgroundConfigurationChange))
 	context.subscriptions.push(vscode.window.onDidChangeVisibleTextEditors(handleVisibleEditorsChange))
 	context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(handleTextDocumentChange))
 	context.subscriptions.push(vscode.window.onDidChangeActiveColorTheme(handleColorThemeChange))
@@ -45,4 +48,4 @@ export function activate(context: vscode.ExtensionContext) {
 	})
 }
 
-export function deactivate() {}
+export function deactivate() { }
